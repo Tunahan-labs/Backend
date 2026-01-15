@@ -1,10 +1,17 @@
-import type { Request, Response } from "express";
+import e, { Request, Response } from "express";
 
-export const getUsers = (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response) => {
+  // Simulated user data
   const users = [
-    { id: 1, name: "Alice", job: "Engineer" },
-    { id: 2, name: "Bob", job: "Designer" },
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
   ];
 
   res.status(200).json(users);
+};
+
+export const getUserById = (req: Request, res: Response) => {
+  const userId = req.params.id;
+
+  res.json({ id: userId });
 };
