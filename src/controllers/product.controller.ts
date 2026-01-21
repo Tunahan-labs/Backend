@@ -4,6 +4,7 @@ import {
   deleteProductByIdService,
   getAllProductsService,
   getProductByIdService,
+  updateProductByIdService,
 } from "../services/product.service";
 
 export const getProducts = async (req: Request, res: Response) => {
@@ -55,7 +56,7 @@ export const deleteProductById = async (req: Request, res: Response) => {
 export const updateProductById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const product = await getProductByIdService(id as string);
+    const product = await updateProductByIdService(id as string, req.body);
     res.status(200).json(product);
   } catch (error) {
     res.status(500).send({ message: (error as Error).message });
