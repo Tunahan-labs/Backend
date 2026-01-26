@@ -1,8 +1,8 @@
-import { UserDB } from "../models/user.model";
+import { UserModel } from "../models/user.model";
 import { AppError } from "../utils/app.error";
 
 export const getAllUsersService = async () => {
-  const users = await UserDB.find();
+  const users = await UserModel.find();
 
   if (!users || users.length === 0) {
     // catch the error in the controller
@@ -13,7 +13,7 @@ export const getAllUsersService = async () => {
 };
 
 export const getUserByIdService = async (id: string) => {
-  const user = await UserDB.findById(id);
+  const user = await UserModel.findById(id);
 
   if (!user) {
     throw new AppError("User not found", 404);
@@ -28,19 +28,19 @@ export const createUserService = async (
   email: string,
   isAdmin: boolean,
 ) => {
-  const existingUser = await UserDB.findOne({ name });
+  const existingUser = await UserModel.findOne({ name });
 
   if (existingUser) {
     throw new AppError("User with the same name already exists", 409);
   }
 
   const newUser = { name, age, email, isAdmin };
-  const createdUser = await UserDB.create(newUser);
+  const createdUser = await UserModel.create(newUser);
   return createdUser;
 };
 
 export const deleteUserByIdService = async (id: string) => {
-  const userToDelete = await UserDB.findById(id);
+  const userToDelete = await UserModel.findById(id);
 
   if (!userToDelete) {
     throw new AppError(
@@ -49,8 +49,7 @@ export const deleteUserByIdService = async (id: string) => {
     );
   }
 
-  const deleted = await UserDB.findByIdAndDelete(userToDelete._id);
-
+  const deleted = await UserModel.findByIdAndDelete(userToDelete._id);
   return {
     deleted,
     message: `${deleted?.name} has been deleted.`,
@@ -61,7 +60,7 @@ export const updateUserByIdService = async (
   id: string,
   updateData: { name: string; age: number; email: string; isAdmin: boolean },
 ) => {
-  const userToUpdate = await UserDB.findByIdAndUpdate(id, updateData, {
+  const userToUpdate = await UserModel.findByIdAndUpdate(id, updateData, {
     new: true,
   });
 

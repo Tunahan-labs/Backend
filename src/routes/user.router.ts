@@ -1,19 +1,25 @@
 import { Router } from "express";
 import {
-  createUser,
-  deleteUserById,
-  getUsers,
+  create,
+  deleteUser,
+  getUser,
   getUserById,
-  updateUserById,
+  updateUser,
 } from "../controllers/user.controller";
-import { createUserValidation } from "../models/user.model";
 import { validate } from "../middleware/validate.middleware";
+import { userZodSchema } from "../models/user.model";
+import { protect } from "../middleware/auth.middleware";
 
 const router = Router();
-router.get("/", getUsers);
+
+router.get("/", protect, getUser);
+
 router.get("/:id", getUserById);
-router.post("/", validate(createUserValidation), createUser);
-router.delete("/:id", deleteUserById);
-router.patch("/:id", updateUserById);
+
+router.post("/", validate(userZodSchema), create);
+
+router.patch("/:id", updateUser);
+
+router.delete("/:id", deleteUser);
 
 export default router;

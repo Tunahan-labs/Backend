@@ -1,32 +1,47 @@
 import mongoose from "mongoose";
-import { z } from "zod";
+import { string, z } from "zod";
 
-export interface UserDocument {
+export interface User {
   name: string;
-  age: number;
   email: string;
-  isAdmin: boolean;
+  age: number;
+  password: string | undefined;
 }
 
-export const createUserValidation = z.object({
+export const userZodSchema = z.object({
   body: z.object({
-    name: z.string("Name must be a string").min(2),
-    age: z.number("Age must be a number").min(0).max(0),
-    email: z.string("Email must be a string"),
-    isAdmin: z.boolean("isAdmin must be a boolean").optional(),
+    name: z.string("not valid").min(3),
+    email: z.email("not valid"),
+    age: z.number("not valid").min(0),
   }),
 });
 
-export type CreateUserTypeZ = z.infer<typeof createUserValidation>["body"];
+export const registerUserValidation = userZodSchema.extend({
+  body: userZodSchema.shape.body.extend({
+    password: z
+      .string("not valid")
+      .min(8, "Password must be at least 8 characters long"),
+  }),
+});
 
-const userSchema = new mongoose.Schema<UserDocument>(
+export const logInUserValidation = z.object({
+  body: z.object({
+    email: z.email("not valid email"),
+    password: z.string("not valid password").min(8),
+  }),
+});
+
+export type regisetUserTypeZ = z.infer<typeof registerUserValidation>["body"];
+export type loginUserTypeZ = z.infer<typeof logInUserValidation>["body"];
+export type CreateUserTypeZ = z.infer<typeof userZodSchema>["body"];
+
+const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    age: { type: Number, required: true },
     email: { type: String, required: true, unique: true },
-    isAdmin: { type: Boolean, required: true, default: false },
+    age: { type: Number, required: true },
+    password: { type: string, require: true, select: false },
   },
   { timestamps: true },
 );
-
-export const UserDB = mongoose.model<UserDocument>("User", userSchema);
+export const UserModel = mongoose.model<User>("User", userSchema);

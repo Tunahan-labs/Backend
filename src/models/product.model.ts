@@ -1,24 +1,22 @@
 import mongoose from "mongoose";
 import { z } from "zod";
-export interface ProductDocument {
+
+export interface Product {
   name: string;
   price: number;
   description: string;
 }
-
-export const createProductValidation = z.object({
+export const ProductZodSchema = z.object({
   body: z.object({
-    name: z.string("Name must be a string").min(2),
-    price: z.number("Price must be a number").min(0),
-    description: z.string("Description must be a string").min(5),
+    name: z.string("not valid").min(3),
+    price: z.number("not valid").min(1),
+    description: z.string("not valid").min(0),
   }),
 });
 
-export type CreateProductTypeZ = z.infer<
-  typeof createProductValidation
->["body"];
+export type CreateProductTypeZ = z.infer<typeof ProductZodSchema>["body"];
 
-const productSchema = new mongoose.Schema<ProductDocument>(
+const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     price: { type: Number, required: true, unique: true },
@@ -26,8 +24,4 @@ const productSchema = new mongoose.Schema<ProductDocument>(
   },
   { timestamps: true },
 );
-
-export const ProductDB = mongoose.model<ProductDocument>(
-  "Product",
-  productSchema,
-);
+export const ProductModel = mongoose.model<Product>("Product", productSchema);
