@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   createProductService,
   deleteProductByIdService,
@@ -6,6 +6,7 @@ import {
   getProductByIdService,
   updateProductByIdService,
 } from "../services/product.service";
+import { CreateProductTypeZ } from "../models/product.model";
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
@@ -16,7 +17,11 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (
+  req: Request<{}, {}, CreateProductTypeZ>,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { name, price, description } = req.body;
     if (!name || !price || !description) {
@@ -29,7 +34,7 @@ export const createProduct = async (req: Request, res: Response) => {
     const newProduct = await createProductService(name, price, description);
     res.status(201).json(newProduct);
   } catch (error) {
-    res.status(500).send({ message: (error as Error).message });
+    next(error);
   }
 };
 

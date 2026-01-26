@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { z } from "zod";
 
 export interface UserDocument {
   name: string;
@@ -6,6 +7,17 @@ export interface UserDocument {
   email: string;
   isAdmin: boolean;
 }
+
+export const createUserValidation = z.object({
+  body: z.object({
+    name: z.string("Name must be a string").min(2),
+    age: z.number("Age must be a number").min(0).max(0),
+    email: z.string("Email must be a string"),
+    isAdmin: z.boolean("isAdmin must be a boolean").optional(),
+  }),
+});
+
+export type CreateUserTypeZ = z.infer<typeof createUserValidation>["body"];
 
 const userSchema = new mongoose.Schema<UserDocument>(
   {

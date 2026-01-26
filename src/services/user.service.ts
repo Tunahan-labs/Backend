@@ -1,11 +1,12 @@
 import { UserDB } from "../models/user.model";
+import { AppError } from "../utils/app.error";
 
 export const getAllUsersService = async () => {
   const users = await UserDB.find();
 
   if (!users || users.length === 0) {
     // catch the error in the controller
-    throw new Error("No users found");
+    throw new AppError("No users found", 404);
   }
 
   return users;
@@ -15,7 +16,7 @@ export const getUserByIdService = async (id: string) => {
   const user = await UserDB.findById(id);
 
   if (!user) {
-    throw new Error("User not found");
+    throw new AppError("User not found", 404);
   }
 
   return user;
@@ -30,7 +31,7 @@ export const createUserService = async (
   const existingUser = await UserDB.findOne({ name });
 
   if (existingUser) {
-    throw new Error("User with the same name already exists");
+    throw new AppError("User with the same name already exists", 409);
   }
 
   const newUser = { name, age, email, isAdmin };
@@ -42,8 +43,9 @@ export const deleteUserByIdService = async (id: string) => {
   const userToDelete = await UserDB.findById(id);
 
   if (!userToDelete) {
-    throw new Error(
+    throw new AppError(
       "The user your are trying to delete does not exist...Try again!",
+      404,
     );
   }
 
@@ -64,8 +66,9 @@ export const updateUserByIdService = async (
   });
 
   if (!userToUpdate) {
-    throw new Error(
+    throw new AppError(
       "The user you are trying to update does not exist...Try again!",
+      404,
     );
   }
 
