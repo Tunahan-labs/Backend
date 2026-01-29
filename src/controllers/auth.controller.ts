@@ -12,6 +12,7 @@ export const registerController = async (
   const { name, age, email, password } = req.body;
   try {
     const newUser = await registerUserService({ name, email, age, password });
+    newUser.password = undefined;
     res
       .status(201)
       .json({ message: "account created successfully", user: newUser });
@@ -28,7 +29,7 @@ export const loginController = async (
   const { email, password } = req.body;
   try {
     const newUser = await loginUserService({ email, password });
-    res.status(200).json({ message: "login successful", user: newUser });
+    res.status(201).json({ message: "login successfully", user: newUser });
   } catch (error) {
     next(error);
   }

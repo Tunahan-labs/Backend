@@ -43,12 +43,17 @@ export const loginUserService = async (userCredantials: loginUserTypeZ) => {
   if (!jwtSecret) {
     throw new AppError("jwt secret is not set", 500);
   }
+
   const expiresIn = (process.env.JWT_EXPIERS_IN ??
     "1d") as SignOptions["expiresIn"];
 
-  const token = jwt.sign({ id: user._id, email: user.email }, jwtSecret, {
-    expiresIn,
-  });
+  const token = jwt.sign(
+    { id: user._id, email: user.email, role: user.role },
+    jwtSecret,
+    {
+      expiresIn,
+    },
+  );
 
   user.password = undefined;
   return { user, token };

@@ -6,7 +6,7 @@ import {
   findAll,
   findById,
   updateUserService,
-} from "../services/user.service";
+} from "../services/user.services";
 
 export const create = async (
   req: Request<{}, {}, CreateUserTypeZ>,

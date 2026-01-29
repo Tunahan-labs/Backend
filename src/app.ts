@@ -1,8 +1,8 @@
 import express, { type Request, type Response } from "express";
-import userRoutes from "./routes/user.router";
-import productRoutes from "./routes/product.router";
+import userRoutes from "./routes/user.routes";
+import productRoutes from "./routes/products.routes";
 import authRoutes from "./routes/auth.routes";
-import { errorHandler } from "./middleware/error.middleware";
+import { errorHandler } from "./middleware/error.middelware";
 
 export const createApp = () => {
   const app = express(); // Global middleware (runs on every request)

@@ -12,7 +12,7 @@ export const errorHandler: ErrorRequestHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   void req;
   void next;

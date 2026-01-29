@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const NODE_ENV = process.env.NODE_ENV || "development";
-const MONGO_URI = process.env.MONGO_URI ?? "mongodb://localhost:27017/myapp";
+const MONGO_URL = process.env.MONGO_URL ?? "mongodb://localhost:27017/myapp";
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const app = createApp();
@@ -17,7 +17,7 @@ app.listen(PORT, () => {
 
 const startServer = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(MONGO_URL);
     console.info(" Connected to MongoDB");
     const app = createApp();
     app.listen(PORT, () => {
