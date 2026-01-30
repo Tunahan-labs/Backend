@@ -1,16 +1,20 @@
-import { ProductModel } from "../models/product.model";
+import { CreateProductTypeZ, ProductModel } from "../models/product.model";
 import { UserModel, type User } from "../models/user.model";
 import { AppError } from "../utils/app.error";
+import {
+  buildSearchQuery,
+  parseBoolean,
+  parseProjection,
+  parseSort,
+} from "../utils/query.util";
 
-export const createProduct = async (
-  name: string,
-  price: number,
-  description: string,
-) => {
-  const existingProduct = await ProductModel.findOne({ name });
+export const createProduct = async (productData: CreateProductTypeZ) => {
+  const existingProduct = await ProductModel.findOne({
+    name: productData.name,
+  });
   console.log(existingProduct);
-  if (existingProduct) throw new AppError("user alrady exists", 409);
-  const newProduct = { name, price, description };
+  if (existingProduct) throw new AppError("Product already exists", 409);
+  const newProduct = await ProductModel.create(productData);
   return newProduct;
 };
 

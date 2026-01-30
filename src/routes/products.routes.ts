@@ -7,6 +7,8 @@ import {
   updateProduct,
 } from "../controllers/prouduct.controllers";
 import { protect, restrictTo } from "../middleware/auth.middelvware";
+import { validate } from "../middleware/validate.middleware";
+import { ProductZodSchema } from "../models/product.model";
 
 const router = Router();
 
@@ -14,7 +16,13 @@ router.get("/", getProduct);
 
 router.get("/:id", getProductById);
 
-router.post("/", restrictTo("admin"), protect, create);
+router.post(
+  "/",
+  validate(ProductZodSchema),
+  restrictTo("admin"),
+  protect,
+  create,
+);
 
 router.put("/:id", restrictTo("admin"), protect, updateProduct);
 
