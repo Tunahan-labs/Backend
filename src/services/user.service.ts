@@ -1,45 +1,37 @@
-import { pool } from "../config/db";
 import bcrypt from "bcrypt";
+import { pool } from "../config/db";
+import { USER } from "../models/user.model";
+import { AppError } from "../utils/app.error";
 
-interface USER {
-  id: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  password: string;
-  admin: boolean;
-  created_at: string;
-  updated_at: string;
-}
+const fieldsToReturn =
+  "id, firstname, lastname, email, admin, created_at, updated_at";
 
 export const getAllUsersService = async () => {
+  // return users without password field
   const results = await pool.query<Partial<USER>>(
-    "SELECT id, firstname, lastname, email, admin, created_at, updated_at FROM users",
+    `SELECT ${fieldsToReturn} FROM users`,
   );
-  console.log(results);
 
   return results.rows;
 };
 
 export const getUserByIdService = async (id: string) => {
-  const query =
-    "SELECT id, firstname, lastname, email, admin, created_at, updated_at FROM users WHERE id = $1";
+  const query = `SELECT ${fieldsToReturn} FROM users WHERE id = $1`;
 
   const result = await pool.query<Partial<USER>>(query, [id]);
+  if (!result) throw new AppError("User not found...", 404);
 
-  if (!result) throw new Error("User not found...");
   return result.rows[0] || null;
 };
 
-const createUserService = async (data: Partial<USER>) => {
-  const query =
-    "INSERT INTO users (firstname, lastname, email, password, admin) VALUES ($1, $2, $3, $4, $5) RETURNING id, firstname, lastname, email, admin, created_at, updated_at";
+export const createUserService = async (data: Partial<USER>) => {
+  const query = `INSERT INTO users (firstname, lastname, email, password) VALUES ($1, $2, $3, $4) returning ${fieldsToReturn}`;
 
   const encryptedPassword = await bcrypt.hash(data.password as string, 10);
   const values = [data.firstname, data.lastname, data.email, encryptedPassword];
 
   const result = await pool.query<Partial<USER>>(query, values);
-  if (!result) throw new Error("User not created...");
+  if (!result) throw new AppError("Failed to create user...", 500);
 
   return result.rows[0];
 };
@@ -52,13 +44,33 @@ export const updateUserService = async (
   const values = Object.values(updateData);
 
   const setClauses = fields
-    .map((field, index) => `${field} = $${index + 2}`)
+    .map((field, index) => `${field} = $${index + 1}`)
     .join(", ");
 
-  const query = `UPDATE users SET ${setClauses} WHERE id = ${id} RETURNING id, firstname, lastname, email, admin, created_at, updated_at`;
+  if (setClauses.includes("password")) {
+    const passwordIndex = fields.findIndex((field) => field === "password");
+    if (passwordIndex !== -1) {
+      const encryptedPassword = await bcrypt.hash(
+        values[passwordIndex] as string,
+        10,
+      );
+      values[passwordIndex] = encryptedPassword;
+    }
+  }
 
-  const result = await pool.query<Partial<USER>>(query, values);
-  if (!result) throw new Error("User not updated...");
+  const query = `UPDATE users SET ${setClauses} WHERE id = $${fields.length + 1} RETURNING ${fieldsToReturn}`;
+
+  const result = await pool.query<Partial<USER>>(query, [...values, id]);
+  if (!result) throw new AppError("Failed to update user...", 500);
+
+  return result.rows[0];
+};
+
+export const deleteUserService = async (id: string) => {
+  const query = `DELETE FROM users WHERE id = $1 RETURNING ${fieldsToReturn}`;
+
+  const result = await pool.query<Partial<USER>>(query, [id]);
+  if (!result) throw new AppError("Failed to delete user...", 500);
 
   return result.rows[0];
 };
